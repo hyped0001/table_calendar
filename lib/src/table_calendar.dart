@@ -30,6 +30,8 @@ enum RangeSelectionMode { disabled, toggledOff, toggledOn, enforced }
 
 /// Highly customizable, feature-packed Flutter calendar with gestures, animations and multiple formats.
 class TableCalendar<T> extends StatefulWidget {
+  final List<bool> Function(DateTime)? dayReleaseStatus;
+
   /// Locale to format `TableCalendar` dates with, for example: `'en_US'`.
   ///
   /// If nothing is provided, a default locale will be used.
@@ -210,6 +212,7 @@ class TableCalendar<T> extends StatefulWidget {
     required DateTime focusedDay,
     required DateTime firstDay,
     required DateTime lastDay,
+    this.dayReleaseStatus,
     DateTime? currentDay,
     this.locale,
     this.rangeStartDay,
@@ -683,7 +686,48 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
             children.add(markerWidget);
           }
         }
-
+        if (widget.dayReleaseStatus != null) {
+          List<Widget> bars = [];
+          List<bool> dayReleaseStati = widget.dayReleaseStatus!(day);
+          if (dayReleaseStati[0]) {
+            bars.add(
+              Container(
+                width: 10,
+                height: 2,
+                decoration: BoxDecoration(
+                  color: Color(0xff6B5AFF),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            );
+          }
+          if (dayReleaseStati[1]) {
+            if (bars.isNotEmpty) {
+              bars.add(SizedBox(
+                width: 3,
+              ));
+            }
+            bars.add(
+              Container(
+                width: 10,
+                height: 2,
+                decoration: BoxDecoration(
+                  color: Color(0xffEB4E55),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            );
+          }
+          children.add(
+            Positioned(
+              bottom: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: bars,
+              ),
+            ),
+          );
+        }
         return Stack(
           alignment: widget.calendarStyle.markersAlignment,
           children: children,
